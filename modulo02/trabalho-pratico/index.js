@@ -1,63 +1,151 @@
 import { promises as fs, writeFile } from "fs";
 
+init();
+
 const vetor_estados = [];
 const vetor_cidades = [];
-
-init();
-writeReadJson();
 
 async function init() {
     try {
         // Lendo os arquivos originais
         const estados = JSON.parse(await fs.readFile("Estados.json"));
         const cidades = JSON.parse(await fs.readFile("Cidades.json"));
-        console.log(estados[0]);
-        console.log(cidades[0]);
         
-        const obj2 = {
-            estados: estados
-        };
+        // Testando as constantes
+        //    console.log(estados[0]);
+        //    console.log(cidades[0]);
+        
+        /* Acrecentando o elemento 0 ao vetor
+            vetor_estados.push(estados[0]);
+        */
 
-        // gravando e lendo os novos arquivos
-        await fs.writeFile("testeEstados.json", JSON.stringify(obj2));
-        const estados_atualizados = JSON.parse(await fs.readFile("testeEstados.json"));
+        /* Imprimindo todos os IDs
+            estados.forEach(uf => {
+                console.log(uf.ID);
+            });
+        */
 
-        //inicializando array de times
-        estados_atualizados[0].estados.forEach( states =>{
-            vetor_estados.push({id: states.ID});
+        //inicializando array de estados
+        estados.forEach(uf => {
+            vetor_estados.push({Id: uf.ID, Sigla: uf.Sigla, Nome: uf.Nome});
         });
 
-        console.log(vetor_estados);
-        
+        //inicializando array de cidades
+        cidades.forEach(city => {
+            vetor_cidades.push({Id: city.ID, Nome: city.Nome, Estado: city.Estado});
+        });
+
+        // Questão 01 e 02
+        cincoEstadosComMaisCidades();
+        // Questão 03
+        //CidadeComMaiorNomeDeCadaEstado();
+        // Questão 04
+        // CidadeComMenorNomeDeCadaEstado();
+
+
     } catch (err) {
         console.log(err);
     }
 }
-/*
-async function init() {
-    const estados = JSON.parse(await fs.readFile("Estados.json"));
 
-    //inicializando array de times
-    uf[0].id.forEach( estado => {
-        estados.push({id: estado.id});
-    });
-}
-*/
-
-async function writeReadJson() {
+async function cincoEstadosComMaisCidades(){
     try {
-        const arrayCarros = ["Gol", "Palio", "Uno"];
-        const obj = {
-            carros: arrayCarros
-        };
+        const cidadesPorEstado = [];
 
-        await fs.writeFile("teste.json", JSON.stringify(obj));
-        const data = JSON.parse(await fs.readFile("Estados.json"));
-        //console.log(data[0]);
+        vetor_estados.forEach( uf => {
+            let contador = 0;
+            vetor_cidades.forEach( city => {
+                const estado = uf.Id;
+                const estadoDaCidade = city.Estado;
+
+                if (estado === estadoDaCidade) {
+                    contador++;
+                }
+            });
+            cidadesPorEstado.push({Estado: uf.Nome, Cidades: contador});
+        });
+
+        // Ordenar pelo número de Cidades (Decrescente)
+        console.log("Questão 01");
+        cidadesPorEstado.sort((a, b) => {
+            return b.Cidades - a.Cidades
+        });
+        console.log(cidadesPorEstado.slice(0, 5));
+
+        // Ordenar pelo número de Cidades (Decrescente)
+        console.log("Questão 02");
+        cidadesPorEstado.sort((a, b) => {
+            return a.Cidades - b.Cidades
+        });
+        console.log(cidadesPorEstado.slice(0, 5));
+
     } catch (err) {
         console.log(err);
     }
+}
 
+async function CidadeComMaiorNomeDeCadaEstado(){
+    let array = [];
+    try {
+        vetor_estados.forEach( uf => {
+            let cidadeMaiorNome = "A";
+            vetor_cidades.forEach( city => {
+                const estado = uf.Id;
+                const estadoDaCidade = city.Estado;
+                if (estado === estadoDaCidade){
+                    if (cidadeMaiorNome.length < city.Nome.length){
+                        cidadeMaiorNome = city.Nome;
+                    }
+                }
+            });
+            console.log(cidadeMaiorNome + " - " + uf.Sigla);
+            array.push({Cidade: cidadeMaiorNome, Estado: uf.Sigla});
+        });
+        console.log();
+
+        let maiorNomeGeral = array[0].Cidade;
+        array.forEach(maiorNome => {
+            if (maiorNome.Cidade.length > maiorNomeGeral.length) {
+                maiorNomeGeral = maiorNome.Cidade;
+            }
+        });
+        console.log(maiorNomeGeral);
+
+    } catch (err) {
+        console.log(err);
+    }
+}
+
+async function CidadeComMenorNomeDeCadaEstado(){
+    let array = [];
+    try {
+        console.log();
+        vetor_estados.forEach( uf => {
+            let cidadeMenorNome = "AAAAAAAAAAAA";
+            vetor_cidades.forEach( city => {
+                const estado = uf.Id;
+                const estadoDaCidade = city.Estado;
+                if (estado === estadoDaCidade){
+                    if (cidadeMenorNome.length > city.Nome.length){
+                        cidadeMenorNome = city.Nome;
+                    }
+                }
+            });
+            console.log(cidadeMenorNome + " - " + uf.Sigla);
+            array.push({Cidade: cidadeMenorNome, Estado: uf.Sigla});
+        });
+        console.log();
+
+        let menorNomeGeral = array[0].Cidade;
+        array.forEach(menorNome => {
+            if (menorNome.Cidade.length < menorNomeGeral.length) {
+                menorNomeGeral = menorNome.Cidade;
+            }
+        });
+        console.log(menorNomeGeral);
+    } catch (err) {
+        console.log(err);
+    }
 }
 
 console.log("fim do código");
